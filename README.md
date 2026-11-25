@@ -11,6 +11,41 @@ testing: elevated party levels, Auto Battle, and minigame win-mode self-play. It
 establish normal-difficulty or manual-input coverage. Conversation notes may suggest staging changes but do not edit
 game code or dialogue.
 
+## What Squirrel is useful for
+
+- **Repeatable playthroughs:** follow each Traveler's story and revisit side quests, keeping separate logs and saves.
+- **Finding blockers:** record unreachable markers, failed interactions, repeated routes, and unfinished quests for
+  a person to investigate. A bot failure is not automatically a game bug.
+- **Dialogue and story review:** replay choices, record observed responses, and flag possible exposition or staging
+  improvements. Text logs alone cannot verify visual presentation.
+- **Minigame coverage:** queue Traveler's minigame families and record observed outcomes. These runs use assisted
+  self-play, so they cannot substitute for manual playtesting or prove all difficulties and rewards work.
+- **Long-running local testing:** an Ollama adviser helps with navigation and notes while the scheduler rotates
+  through available work. Review its conclusions against the underlying logs.
+
+Squirrel is a supplement to human testers, not a guarantee of game quality or exhaustive coverage. It can miss
+content, misunderstand what it sees, or get stuck.
+
+## Adapting Squirrel to another game
+
+There is **no plug-and-play adapter API yet**. A port requires changes to the runner and a test interface in the
+target game or engine:
+
+1. Provide controlled player inputs and observable events for movement, interactions, dialogue, choices, objectives,
+   combat, saves, and any minigames being tested. The current runner consumes Traveler's `[RT]` log messages and
+   `RokuganChase.sk` hooks; another game needs equivalent signals or a rewritten observation layer.
+2. Replace Traveler-specific launching, paths, maps, character routes, quest parsing, and log matching in
+   `tools\markerchase.py` and `tools\squirrel_config.py`. Adapt `tools\squirrel_loop.py` to the new game's
+   progression and scheduling rules.
+3. Adapt `tools\squirrels_navigation.py` and the prompts in `tools\chase_llm.py` to the new world's movement,
+   interactions, and evidence. Keep untrusted game text from overriding the testing rules.
+4. Define what actually proves an objective or minigame outcome, preserve evidence and resumable state, and add tests
+   for blocked, incomplete, and successful cases. Clearly label any shortcuts or assisted modes; do not infer a pass
+   from a missing marker or a finished run.
+
+A practical next step for a reusable version would be to extract those game-specific pieces behind an adapter
+interface. That interface and support for other games have not been implemented here.
+
 ## Requirements
 
 - Windows, Python 3.10 or later, and a compatible Traveler checkout containing the native `rpgcobo.exe` and
@@ -62,3 +97,8 @@ The Python tests do not launch the game or contact Ollama:
 ```powershell
 python -E -m unittest discover -s tools -p 'test_*.py'
 ```
+
+## Support
+
+If you find Squirrel useful and would like to support its creator, you can
+[buy me a coffee](https://buymeacoffee.com/akodoreign). Thank you!
